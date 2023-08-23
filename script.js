@@ -223,8 +223,8 @@ startSearch.addEventListener("click", async function () {
     }
 
     const savedQuery = query.value;
-    query.value = "";
     query.focus();
+    query.select();
 
     lastQuery.push(savedQuery);
     if (lastQuery[0] !== query.value) {
