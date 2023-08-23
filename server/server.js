@@ -11,7 +11,7 @@ app.use(Express.json());
 const PORT = 3000;
 
 // allow CORS
-app.use((res, next) => {
+app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
     next();
 });

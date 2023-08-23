@@ -1,0 +1,4 @@
+node_modules/
+.env
+ytmusic.js
+*Zone.Identifier

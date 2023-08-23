@@ -254,6 +254,11 @@ ul {
         .artist-img {
             border-radius: 50%;
         }
+
+        &.selected {
+            background: hsl(0, 0%, 40%) !important;
+            outline: 2px solid rgba(204, 204, 204, 0.7) !important;
+        }
     }
 }
 
@@ -271,4 +276,29 @@ ul {
     position: absolute;
     overflow: hidden;
     width: 10px;
+}
+
+#convert-ytm {
+    width: 130px;
+    height: 60px;
+    position: absolute;
+    top: 15%;
+    right: 25%;
+
+    background-image: url("./images/arrow.png");
+    background-position: 10px;
+    background-repeat: no-repeat;
+    background-size: 48px;
+
+    &::after {
+        content: "";
+        width: 48px;
+        height: 48px;
+        position: absolute;
+        right: 10px;
+        top: 5px;
+        background-image: url(./images/youtube-music.png);
+        background-size: 48px;
+        background-repeat: no-repeat;
+    }
 }
