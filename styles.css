@@ -172,7 +172,9 @@ label {
   outline: 2px solid rgba(204, 204, 204, 0.1);
   overflow: auto;
   background-color: hsl(0, 0%, 20%);
+  color: rgb(246, 251, 255);
 }
+
 #results .active {
   display: block;
   position: relative;
@@ -265,18 +267,18 @@ ul li.selected {
   width: 10px;
 }
 
-#convert-ytm {
+#search-ytm {
   width: 130px;
   height: 60px;
-  position: absolute;
-  top: 15%;
-  right: 25%;
-  background-image: url("./images/arrow.png");
+  position: relative;
+  background-image: url(./images/arrow.png);
   background-position: 10px;
   background-repeat: no-repeat;
   background-size: 48px;
+  margin-left: 20px;
+  margin-right: 10px;
 }
-#convert-ytm::after {
+#search-ytm::after {
   content: "";
   width: 48px;
   height: 48px;

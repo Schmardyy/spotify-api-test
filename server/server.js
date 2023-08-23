@@ -3,6 +3,7 @@ import { GetAccessToken } from "./GetAccessToken.js";
 globalThis.fetch = fetch;
 
 import Express from "express";
+import { search } from "./ytmusic.js";
 
 const app = new Express();
 app.use(Express.json());
@@ -75,6 +76,20 @@ app.post("/artist", async (req, res) =>
         )
     )
 );
+
+app.post("/search", async (req, res) => {
+    const query = req.query.query;
+    const artist = req.query.artist;
+
+    search(query, artist)
+        .then((videoId) => {
+            res.send({ videoId });
+        })
+        .catch((error) => {
+            console.log(error);
+            res.send({ videoId: "notfound" });
+        });
+});
 
 const getPlaylist = async (accessToken, query, offset, limit) => {
     const response = await fetch(

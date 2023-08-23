@@ -4,7 +4,7 @@ const results = document.querySelector("#results");
 const selection = document.querySelector("#selection");
 const divs = document.querySelectorAll("#results > div");
 let ul = document.querySelector("#results > div.active > ul");
-// ul.innerHTML = "";
+ul.innerHTML = "";
 
 const startSearch = document.querySelector("#search");
 const loadMore = document.querySelector("#load-more");
@@ -13,13 +13,15 @@ const loadLimitDisplay = document.querySelector("#load-limit-disp");
 
 const errorMsg = document.querySelector("#error-msg");
 
+let searchYTMButton;
+
 selection.addEventListener("change", function () {
     const selectedValue = selection.value;
+    errorMsg.innerText = "";
 
     divs.forEach((div) => {
         if (div.id === selectedValue) {
             div.classList.add("active");
-            ul = document.querySelector("#results > div.active > ul");
             document.querySelectorAll(".loader").forEach((loader) => {
                 loader.remove();
             });
@@ -105,6 +107,7 @@ selection.addEventListener("change", function () {
   </defs>
                 </svg>`;
                 div.appendChild(loader);
+                ul = document.querySelector("#results > div.active > ul");
             }
         } else {
             div.classList.remove("active");
@@ -113,10 +116,8 @@ selection.addEventListener("change", function () {
 });
 
 let offset = 0;
-let clearUL = true;
 loadMore.addEventListener("click", function () {
     offset += 20;
-    clearUL = false;
     startSearch.click();
 });
 
@@ -210,32 +211,61 @@ divs.forEach((div) => {
         }
     }
 });
+const lastQuery = [];
 
 startSearch.addEventListener("click", async function () {
+    errorMsg.innerText = "";
+
     const type = selection.value;
     if (query.value === "") {
         query.placeholder = "Bitte Ausfüllen!";
         return;
     }
+
+    const savedQuery = query.value;
+    query.value = "";
+    query.focus();
+
+    lastQuery.push(savedQuery);
+    if (lastQuery[0] !== query.value) {
+        offset = 0;
+        ul.innerHTML = "";
+        lastQuery.shift();
+    }
+
     document.querySelectorAll(".loader").forEach((loader) => {
         loader.classList.remove("hidden");
     });
 
     const response = await fetch(
-        `http://localhost:3000/${type}?query=${query.value}&offset=${offset}&limit=20`,
+        `http://localhost:3000/${type}?query=${savedQuery}&offset=${offset}&limit=20`,
         {
             method: "POST",
         }
-    ).catch((err) => {
+    ).catch(() => {
         errorMsg.innerText = "Fehler beim Senden der Anfrage!";
         return;
     });
 
     const data = await response.json();
 
-    if (clearUL) {
-        ul.innerHTML = "";
+    if (data.length === 0) {
+        let err = "Keine Ergebnisse gefunden!";
+        if (offset > 0) {
+            err = "Keine weiteren Ergebnisse gefunden!";
+        }
+        setTimeout(() => {
+            errorMsg.innerText = err;
+            document.querySelectorAll(".loader").forEach((loader) => {
+                loader.classList.add("hidden");
+            });
+            query.value = "";
+            query.focus();
+            loadMore.disabled = true;
+        }, 1000);
+        return;
     }
+
     loadMore.disabled = false;
     data.forEach((item) => {
         ul.appendChild(generateFields(item, type));
@@ -243,6 +273,12 @@ startSearch.addEventListener("click", async function () {
 });
 
 function generateFields(data, type) {
+    setTimeout(() => {
+        if (data === undefined) {
+            errorMsg.innerText = "Fehler beim Senden der Anfrage!";
+        }
+    }, 3000);
+
     const li = document.createElement("li");
     li.classList.add("hide");
     setTimeout(() => {
@@ -282,6 +318,12 @@ function generateFields(data, type) {
             break;
         case "song":
             link.innerText = "Link zum Song";
+            searchYTMButton = document.createElement("button");
+            searchYTMButton.classList.add("btn");
+            searchYTMButton.id = "search-ytm";
+            searchYTMButton.title = "Suche auf YouTube Music";
+            li.appendChild(searchYTMButton);
+            searchYTM();
             break;
         case "album":
             link.innerText = "Link zum Album";
@@ -294,4 +336,25 @@ function generateFields(data, type) {
     body.appendChild(link);
 
     return li;
+}
+
+function searchYTM() {
+    searchYTMButton.addEventListener("click", function () {
+        const query = this.parentElement.querySelector(".name").innerText;
+        const artist = this.parentElement.querySelector(".artist").innerText;
+
+        fetch(`http://localhost:3000/search?query=${query}&artist=${artist}`, {
+            method: "POST",
+        }).then((response) => {
+            response.json().then((data) => {
+                errorMsg.innerText = "";
+                if (data.videoId === "notfound") {
+                    errorMsg.innerText = "Auf YouTube Music nicht vorhanden!";
+                    return;
+                }
+                const url = `https://music.youtube.com/watch?v=${data.videoId}`;
+                window.open(url, "_blank");
+            });
+        });
+    });
 }
