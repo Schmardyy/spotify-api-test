@@ -1,2 +1,3 @@
-# spotify-api-test
-search for playlists, songs, albums, and artists
+# Spotify Instant Search
+
+### search for playlists, songs, albums, and artists
